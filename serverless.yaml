@@ -1,0 +1,45 @@
+service: serverless-task-manager
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-south-1
+  environment:
+    TABLE_NAME: ${self:service}-table
+functions:
+  createTask:
+    handler: src/createTask.handler
+    events:
+      - http:
+          path: tasks
+          method: post
+  getTasks:
+    handler: src/getTasks.handler
+    events:
+      - http:
+          path: tasks
+          method: get
+  updateTask:
+    handler: src/updateTask.handler
+    events:
+      - http:
+          path: tasks/{id}
+          method: put
+  deleteTask:
+    handler: src/deleteTask.handler
+    events:
+      - http:
+          path: tasks/{id}
+          method: delete
+resources:
+  Resources:
+    TasksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TABLE_NAME}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
